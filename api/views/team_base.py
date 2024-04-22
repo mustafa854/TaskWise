@@ -63,6 +63,12 @@ class TeamView(APIView):
           teamsArray.append(newTeam)
           with open(self.teams_path + ".txt", "w") as f:
             json.dump(teamsArray, f)
+          # team_member_dir_name = newTeam['id'] + ".txt"
+          team_member_dir_name = newTeam['id']
+          team_members_dir = os.path.join(self.team_member_dir, team_member_dir_name)
+          os.mkdir(team_members_dir)
+          team_member_file = open(os.path.join(team_members_dir, newTeam['admin'])+".txt" , "w")
+          team_member_file.write("admin")
         return Response({"id":newTeam['id']}, status=201)
               
           
