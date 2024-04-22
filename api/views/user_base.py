@@ -130,34 +130,3 @@ def get_user_teams(request: str) -> str:
   
   
   return Response(output, status=200)
-
-
-
-    
-
-    
-    
-
-    
-    
-
-    
-
-    # def get_user_teams(self, request: str) -> str:
-    #     """
-    #     :param request:
-    #     {
-    #       "id" : "<user_id>"
-    #     }
-
-    #     :return: A json list with the response.
-    #     [
-    #       {
-    #         "name" : "<team_name>",
-    #         "description" : "<some description>",
-    #         "creation_time" : "<some date:time format>"
-    #       }
-    #     ]
-    #     """
-    #     pass
-

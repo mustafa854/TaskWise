@@ -6,6 +6,7 @@ from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from api.serializer import TeamSerializerView, TeamSerializerCreateOrUpdate
+from rest_framework.decorators import api_view
 
 class TeamView(APIView):
     teams_path = os.path.join(os.getcwd(), "db","teams")
@@ -225,51 +226,32 @@ class TeamView(APIView):
 
 
 
-
-# def list_team_users(self, request: str):
-#         """
-#         :param request: A json string with the team identifier
-#         {
-#           "id" : "<team_id>"
-#         }
-
-#         :return:
-#         [
-#           {
-#             "id" : "<user_id>",
-#             "name" : "<user_name>",
-#             "display_name" : "<display name>"
-#           }
-#         ]
-#         """
-#         pass
-
+@api_view(['GET'])
+def list_team_users(request: str):
+  users_path = os.path.join(os.getcwd(), "db","users")
+  team_member_dir = os.path.join(os.getcwd(), "db","team_members")
+  output = []
   
-
-class TeamBase:
-    """
-    Base interface implementation for API's to manage teams.
-    For simplicity a single team manages a single project. And there is a separate team per project.
-    Users can be
-    """
-
-    # create a team
-  #  # list users of a team
-  #   def list_team_users(self, request: str):
-  #       """
-  #       :param request: A json string with the team identifier
-  #       {
-  #         "id" : "<team_id>"
-  #       }
-
-  #       :return:
-  #       [
-  #         {
-  #           "id" : "<user_id>",
-  #           "name" : "<user_name>",
-  #           "display_name" : "<display name>"
-  #         }
-  #       ]
-  #       """
-  #       pass
-
+  team_id = str(request.data.get('id'))
+  teams_Arr = os.listdir(team_member_dir)
+  
+  if team_id not in teams_Arr:
+    return Response({"error":"The team with given id doesn't exists! Please enetr a correct Id"}, status=404)
+  
+  teamMembers = os.listdir(os.path.join(team_member_dir, team_id))  
+  if len(teamMembers) ==  0:
+    return Response([], 200)
+  
+  with open(users_path+".txt", "r") as file:
+    users_arr = json.load(file)
+    # print(users_arr)
+  for teamMember in teamMembers:
+    for user in users_arr:
+      if teamMember == user["id"]+".txt":
+        output.append({
+            "id" : user['id'] ,
+            "name" : user['name'],
+            "display_name" : user['display_name']
+          })
+  
+  return Response(output, 200)
