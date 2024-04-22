@@ -1,11 +1,9 @@
 from datetime import date, datetime
 import json
 import os
-from typing import List
 import uuid
 from rest_framework.views import APIView
 from rest_framework.response import Response
-
 from api.serializer import UserSerializer
 
 class UserView(APIView):
