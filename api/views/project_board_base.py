@@ -10,6 +10,7 @@ from api import serializer
 from api.serializer import BoardSerializerCreateOrUpdate, TaskSerializer, TaskUpdateSerializer
 class BoardView(APIView):    
     db_path = os.path.join(os.getcwd(), "db")
+    out_directory = os.path.join(os.getcwd(), "out")
     teams_path = os.path.join(db_path,"teams")
     team_member_dir = os.path.join(db_path,"team_members")
     users_path = os.path.join(db_path,"users")
@@ -224,14 +225,14 @@ class BoardView(APIView):
       output = []
       if os.path.isfile(self.open_board_path+".txt"):
         with open(self.open_board_path+".txt", "r") as file:
-          open_board = json.load(file)
+          open_board = json.load(file.read())
           temp = {
             "id" : open_board["id"],
             "name" : open_board["name"]
           }
           output.append()
       with open(self.boards_path+".txt", "r") as file:
-        closed_boards = json.load(file)
+        closed_boards = json.load(file.read())
         for board in closed_boards:
           temp = {
             "id" : board["id"],
@@ -244,25 +245,130 @@ class BoardView(APIView):
       
 
     def export_board(self, request: str) -> str:
-      pass
+      # check board id in open and closed/boards.txt, if not found then return error
+      board_id = str(request.data.get('id'))
+      board_found = False
+      output = {}
+      board_status = "?"
+      if os.path.isfile(self.open_board_path+".txt") == True:
+        with open(self.open_board_path + ".txt", "r") as file:
+           open_board = json.loads(file.read())
+           if open_board['id'] == board_id:
+             board_found =True
+             board_status = "OPEN"
+             output['board_id'] = open_board['id']
+             output['board_name'] = open_board['name']
+             output['team_id'] = open_board['team_id']
+             with open(self.teams_path+".txt", "r") as file:
+               data = json.load(file)
+               for d in data:
+                 if d["id"] == output['team_id']:
+                   output['team_name'] = d['name']
+                   break
+             
+             output['creation_time'] = open_board['creation_time']
+             
+        
+      if board_status == "OPEN":
+        open_tasks = []
+        open_tasks_dir = os.listdir(self.open_tasks_path)
+        for task in open_tasks_dir:
+          with open(os.path.join(self.tasks_path,"OPEN", task), "r") as File:
+            open_tasks.append(json.load(File))
+        closed_tasks = []
+        closed_taks_dir = os.listdir(self.closed_tasks_path)
+        for task in closed_taks_dir:
+          with open(os.path.join(self.tasks_path,"CLOSED", task), "r") as File:
+            closed_tasks.append(json.load(File))
+        in_progress_tasks = []
+        in_progress_tasks_dir = os.listdir(self.in_progress_tasks_path)
+        for task in in_progress_tasks_dir:
+          with open(os.path.join(self.tasks_path,"INPROGRESS", task), "r") as File:
+            in_progress_tasks.append(json.load(File))  
+        
+        current_time = str(date.today()) +" " +str(datetime.now().hour)+":"+str(datetime.now().minute)+":"+str(datetime.now().second)+":"+str(datetime.now().microsecond)
+        filename = "".join( x for x in "OPEN_"+current_time if (x.isalnum() or x in "._- "))
+        with open(self.out_directory + "\\"+filename+".txt", "w") as file:
+          output_file = ""
+          for x in output.keys():
+            output_file += '\n|------------------|------------------------------------------------------------------|'
+            output_file += '\n| '+x + (16-len(x))*' '+ " |"+" "+ output.get(x) +(64-len(output.get(x)))*" " +" |"
+          
+          output_file += '\n|------------------|------------------------------------------------------------------|'
+          output_file +='\n\n\nStatus: Open'
+          for i, ele in enumerate(open_tasks):
+            output_file += '\n|@@@@@|@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@|'
+            output_file += '\n| #'+str(i+1)+"  | " + ele['title']+(89-len(output.get(x)))*" " +" |"
+            output_file += '\n|Start'+"| " + ele['creation_time']+(77-len(ele['creation_time']))*" " +" |"
+          output_file += '\n|@@@@@|@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@|'
+          
+          output_file +='\n\n\nStatus: In Progress'
+          for j, ele in enumerate(in_progress_tasks):
+            output_file += '\n|@@@@@|@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@|'
+            output_file += '\n| #'+str(j+1)+"  | " + ele['title']+(89-len(output.get(x)))*" " +" |"
+            output_file += '\n|Start'+"| " +  ele['creation_time']+(77-len(ele['creation_time']))*" " +" |"
+          output_file += '\n|@@@@@|@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@|'
+          
+          output_file +='\n\n\nStatus: Closed'
+          for k, ele in enumerate(closed_tasks):
+            output_file += '\n|@@@@@|@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@|'
+            output_file += '\n| #'+str(k+1)+"  | " + ele['title']+(89-len(output.get(x)))*" " +" |"
+            output_file += '\n|Start'+"| " +  ele['creation_time']+(77-len(ele['creation_time']))*" " +" |"
+          output_file += '\n|@@@@@|@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@|'
+            
+         
+          
+          file.write(output_file)
+          
+        return Response({"message":"Check Output Folder"}, status=201)
+        
+      if board_found == False:
+         with open(self.boards_path + ".txt", "r") as file:
+           closed_boards = json.loads(file.read())
+           for board in closed_boards:
+            if board['id'] == board_id:
+              board_found = True
+              board_status = "CLOSED"
+              output['board_id'] = board['id']
+              output['board_name'] = board['name']
+              output['team_id'] = board['team_id']
+              output['creation_time'] = board['creation_time']
+              output['close_time'] = board['close_time']
+              with open(self.teams_path+".txt", "r") as file:
+                data = json.load(file)
+                for d in data:
+                  if d["id"] == output['team_id']:
+                    output['team_name'] = d['name']
+                    break
+      if board_status == "CLOSED":
+        completed_tasks = []
+        completed_tasks_dir = os.listdir(os.path.join(os.getcwd(),"db", "tasks", "COMPLETED", output['board_id']))
+        if len(completed_tasks_dir)>0:
+          for task in completed_tasks_dir:
+            with open(os.path.join(self.tasks_path,"COMPLETED", output['board_id'], task), "r") as File:
+              completed_tasks.append(json.loads(File.read()))
+        current_time = str(date.today()) +" " +str(datetime.now().hour)+":"+str(datetime.now().minute)+":"+str(datetime.now().second)+":"+str(datetime.now().microsecond)
+        filename = "".join( x for x in "CLOSED_"+current_time if (x.isalnum() or x in "._- "))
+        with open(self.out_directory + "\\"+filename+".txt", "w") as file:
+          output_file = ""
+          for x in output.keys():
+            output_file += '\n|------------------|------------------------------------------------------------------|'
+            output_file += '\n| '+x + (16-len(x))*' '+ " |"+" "+ output.get(x) +(64-len(output.get(x)))*" " +" |"
+          
+          output_file += '\n|------------------|------------------------------------------------------------------|'
+          
+          output_file +='\n\n\nStatus: Closed'
+          for k, ele in enumerate(completed_tasks):
+            output_file += '\n|@@@@@|@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@|'
+            output_file += '\n| #'+str(k+1)+"  | " + ele['title']+(89-len(output.get(x)))*" " +" |"
+            output_file += '\n|Start'+"| " +  ele['creation_time']+(77-len(ele['creation_time']))*" " +" |"
+          output_file += '\n|@@@@@|@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@|'
+            
+          file.write(output_file)
+          
+        return Response({"message":"Check Output Folder"}, status=201)
+                    
+      if board_found == False:
+        return Response({"error":"Select correct board ID to export the board"}, status=404)       
+      
 
-
-class ProjectBoardBase:
-    """
-    A project board is a unit of delivery for a project. Each board will have a set of tasks assigned to a user.
-    """
-    
-    def export_board(self, request: str) -> str:
-        """
-        Export a board in the out folder. The output will be a txt file.
-        We want you to be creative. Output a presentable view of the board and its tasks with the available data.
-        :param request:
-        {
-          "id" : "<board_id>"
-        }
-        :return:
-        {
-          "out_file" : "<name of the file created>"
-        }
-        """
-        pass
