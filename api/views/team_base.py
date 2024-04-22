@@ -24,11 +24,15 @@ class TeamView(APIView):
         return self.list_teams()
       
     def post(self, request):
+      if request.data.get("id"):
+        return self.add_users_to_team(request)
       return self.create_team(request)
   
     def patch(self, request):
       return self.update_team(request) 
-  
+
+    def delete(self, request):
+      return self.remove_users_from_team(request)
   
     # create a team
     def create_team(self, request: str) -> str:
@@ -71,9 +75,7 @@ class TeamView(APIView):
           team_member_file = open(os.path.join(team_members_dir, newTeam['admin'])+".txt" , "w")
           team_member_file.write("admin")
         return Response({"id":newTeam['id']}, status=201)
-              
-          
-         
+                  
     # list all teams
     def list_teams(self) -> str:
         output = []
@@ -139,49 +141,89 @@ class TeamView(APIView):
       with open(self.teams_path+".txt", "w") as f:
         f.write(json.dumps(teams_array))
       return Response({}, status=200)
-        
+    
+    def add_users_to_team(self,request: str):
+      teamID = request.data.get("id")
+      usersArr = request.data.get("users")
+      teams_path = os.path.join(os.getcwd(), "db","teams")
+      team_members_dir = os.path.join(os.getcwd(), "db","team_members")
+      users_path = os.path.join(os.getcwd(), "db","users")
+      current_users_count = len(os.listdir(team_members_dir))
+      add_users_count = len(usersArr)
+      if add_users_count == 0:
+        return Response({"error":"Please add atleast 1 user Id to assign to the current team"}, status=400)
+      if current_users_count + add_users_count > 50:
+        return Response({"error":"Max 50 users can be added!"}, status=400)
+      with open(teams_path + ".txt") as team:
+            teamsList = json.loads(team.read())
+      teamFound = False   
+      for team in teamsList:
+        if teamID == team["id"]:
+          teamFound = True
+      if teamFound==False:
+        return Response({"error":"No team Found! Please select a correct Team Id"}, status=404)
+      
+      with open(users_path+".txt", "r") as f:
+        users_array = json.load(f)
+        for user in usersArr:
+          user_found = False
+          for existingUser in users_array:
+            if user == existingUser['id']:
+              user_found = True
+              break
+          if user_found == False:
+            return Response({"error":"Please select correct User Id to add them to a Team!"}, status=400)
+      
+      for newUser in usersArr:
+        open(os.path.join(team_members_dir, teamID ,newUser)+".txt" , "w")
+      
+      return Response({}, status= 200)
 
-@api_view(['POST'])
-def add_users_to_team(request: str):
-  teamID = request.data.get("id")
-  usersArr = request.data.get("users")
-  teams_path = os.path.join(os.getcwd(), "db","teams")
-  team_members_dir = os.path.join(os.getcwd(), "db","team_members")
-  users_path = os.path.join(os.getcwd(), "db","users")
-  current_users_count = len(os.listdir(team_members_dir))
-  add_users_count = len(usersArr)
-  if add_users_count == 0:
-    return Response({"error":"Please add atleast 1 user Id to assign to the current team"}, status=400)
-  if current_users_count + add_users_count > 50:
-    return Response({"error":"Max 50 users can be added!"}, status=400)
-  with open(teams_path + ".txt") as team:
-        teamsList = json.loads(team.read())
-  teamFound = False   
-  for team in teamsList:
-    if teamID == team["id"]:
-      teamFound = True
-  if teamFound==False:
-    return Response({"error":"No team Found! Please select a correct Team Id"}, status=404)
-  
-  with open(users_path+".txt", "r") as f:
-    users_array = json.load(f)
-    for user in usersArr:
-      user_found = False
-      for existingUser in users_array:
-        if user == existingUser['id']:
-          user_found = True
+    def remove_users_from_team(self,request: str):
+      teamID = request.data.get("id")
+      usersArr = request.data.get("users")
+      teams_path = os.path.join(os.getcwd(), "db","teams")
+      team_members_dir = os.path.join(os.getcwd(), "db","team_members")
+      users_path = os.path.join(os.getcwd(), "db","users")
+      current_users_count = len(os.listdir(team_members_dir))
+      add_users_count = len(usersArr)
+      if current_users_count == 1:
+        return Response({"error":"There are no Members except Team Leader!"}, status=400)
+      if add_users_count == 0:
+        return Response({"error":"Please add atleast 1 user Id to remove from the current team"}, status=400)
+      
+      with open(teams_path + ".txt") as team:
+            teamsList = json.loads(team.read())
+      teamFound = False   
+      
+      for team in teamsList:
+        if teamID == team["id"]:
+          teamFoundData = team
+          teamFound = True
           break
-      if user_found == False:
-        return Response({"error":"Please select correct User Id to add them to a Team!"}, status=400)
-  
-  for newUser in usersArr:
-    open(os.path.join(team_members_dir, teamID ,newUser)+".txt" , "w")
-  
-  return Response({}, status= 200)
-@api_view(['POST'])
-def remove_users_from_team(request: str):
-        
-        return Response({"message": "POST request for /teams/delete-user"})
+      if teamFound==False:
+        return Response({"error":"No team Found! Please select a correct Team Id"}, status=404)
+      
+      with open(users_path+".txt", "r") as f:
+        users_array = json.load(f)
+        for user in usersArr:
+          user_found = False
+          for existingUser in users_array:
+            if user == teamFoundData['admin']:
+              return Response({"error":"Admins / Team Leaders can't be deleted from a Team!"}, status=400)
+            if user == existingUser['id']:
+              user_found = True
+              break
+          if user_found == False:
+            return Response({"error":"Please select correct User Id to remove them from a Team!"}, status=400)
+      
+      for newUser in usersArr:
+        os.remove(os.path.join(team_members_dir, teamID ,newUser)+".txt")
+      
+      return Response({}, status= 200)
+            
+
+
 
 
 # def list_team_users(self, request: str):
