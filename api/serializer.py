@@ -32,3 +32,14 @@ class TaskSerializer(serializers.Serializer):
     title = serializers.CharField(max_length=64, allow_blank=False)
     description = serializers.CharField(max_length=128, allow_blank=True)
     user_id = serializers.UUIDField()
+
+
+TASK_STATUS_CHOICES = [
+    ("OPEN", "OPEN"),
+    ("IN_PROGRESS", "IN_PROGRESS"),
+    ("CLOSED", "COMPLETE")
+]
+
+class TaskUpdateSerializer(serializers.Serializer):
+    id = serializers.UUIDField()
+    status = serializers.ChoiceField(choices=TASK_STATUS_CHOICES)

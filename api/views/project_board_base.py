@@ -6,7 +6,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 
 from api import serializer
-from api.serializer import BoardSerializerCreateOrUpdate, TaskSerializer
+from api.serializer import BoardSerializerCreateOrUpdate, TaskSerializer, TaskUpdateSerializer
 class BoardView(APIView):    
     db_path = os.path.join(os.getcwd(), "db")
     teams_path = os.path.join(db_path,"teams")
@@ -17,6 +17,7 @@ class BoardView(APIView):
     open_tasks_path = os.path.join(db_path, "tasks", "OPEN")
     in_progress_tasks_path = os.path.join(db_path, "tasks", "INPROGRESS")
     closed_tasks_path = os.path.join(db_path, "tasks", "CLOSED")
+    tasks_path = os.path.join(db_path, "tasks")
     
     def get(self, request):
       return self.list_boards(request)
@@ -27,8 +28,12 @@ class BoardView(APIView):
       return self.create_board(request)
     
     def patch(self, request):
-      return self.close_board(request)
-    
+      if request.data.get("id"):
+        if request.data.get("status"):
+          return self.update_task_status(request)
+        return self.close_board(request)
+      else:
+        return Response({"error": "Please enter a Board ID to close the board, or enter Task ID with status to update Task Status."}, status=400)  
     
     def create_board(self, request: str):
       if os.path.isfile(self.open_board_path+".txt"):
@@ -80,6 +85,11 @@ class BoardView(APIView):
       output.append(current_close_board)
       with open(self.boards_path + ".txt", "w") as closed_boards:
         closed_boards.write(json.dumps(output))
+      
+      closed_tasks = os.listdir(self.closed_tasks_path)
+      if len(closed_tasks)>0:
+        for task in closed_tasks:
+          os.remove(os.path.join(self.closed_tasks_path,task ))
         
       os.remove(self.open_board_path + ".txt")
         
@@ -136,7 +146,57 @@ class BoardView(APIView):
         return Response({"id": task['id']}, status=201)
 
     def update_task_status(self, request: str):
-      pass
+        serializer = TaskUpdateSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+          task = serializer.validated_data
+          task['id'] = str(task['id'] )
+          if task['status'] == "IN_PROGRESS":
+            task['status'] = "INPROGRESS"
+        open_tasks = os.listdir(self.open_tasks_path)
+        closed_tasks = os.listdir(self.closed_tasks_path)
+        in_progress_tasks = os.listdir(self.in_progress_tasks_path)
+        task_found = False
+        task_details = {}
+        
+        if len(open_tasks)>0:
+          for open_task in open_tasks:
+            with open(os.path.join(self.open_tasks_path,open_task), "r") as file:
+              temp_json = json.load(file)
+              if task['id'] == temp_json['id']:
+                task_found = True
+                task_details = temp_json
+                old_task_status = "OPEN"
+                break
+        if len(closed_tasks)>0 and task_found!=True:
+          for closed_task in closed_tasks:
+            with open(os.path.join(self.closed_tasks_path,closed_task), "r") as file:
+              temp_json = json.load(file)
+              if task['id'] == temp_json['id']:
+                task_found = True
+                task_details = temp_json
+                old_task_status = "CLOSED"
+                break
+        if len(in_progress_tasks)>0  and task_found!=True:
+          for in_progress_task in in_progress_tasks:
+            with open(os.path.join(self.in_progress_tasks_path,in_progress_task), "r") as file:
+              temp_json = json.load(file)
+              if task['id'] == temp_json['id']:
+                task_found = True
+                task_details = temp_json
+                old_task_status = "INPROGRESS"
+                break
+        if task_found == False:
+          return Response({"error":"Enter correct Task Id to update the status!"}, status=404)
+        
+        if old_task_status == task['status']:
+          return Response({"error":"The task is of the same status, choose another choice to change the staus of the task."}, status=400)
+        
+        with open(os.path.join(self.tasks_path, task['status'], task_details['id'])+".txt", "w") as new_task:
+          new_task.write(json.dumps(task_details))
+        
+        os.remove(os.path.join(self.tasks_path, old_task_status, task['id'])+".txt")
+        
+        return Response({}, status=201)
 
     def list_boards(self, request: str) -> str:
       team_id = request.data.get('id')

@@ -1,1 +1,0 @@
-{"title": "<board_title3>", "description": "<description>", "user_id": "98e966ca-569b-40c7-9fb6-4860fcb7015f", "creation_time": "2024-04-22 18:17:34", "id": "09bb98eb-be5d-4b79-b3a4-c877f96018b6"}

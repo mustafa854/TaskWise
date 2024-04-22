@@ -5,5 +5,14 @@
     "team_id": "38a8b204-dc41-458a-8c8b-4b2c1ff6c0c8",
     "id": "bdbb82c7-e27b-44c9-9df2-b1eacca49be3",
     "creation_time": "2024-04-22 16:9:57"
+  },
+  {
+    "name": "<board_name2>",
+    "description": "<description>",
+    "team_id": "38a8b204-dc41-458a-8c8b-4b2c1ff6c0c8",
+    "id": "d7ac7e2b-141a-4098-b36e-0fc7995c7233",
+    "creation_time": "2024-04-22 17:31:7",
+    "close_time": "2024-04-22 19:30:27",
+    "status": "CLOSED"
   }
 ]
