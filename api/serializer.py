@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from core import models
 from uuid import uuid4
 
 

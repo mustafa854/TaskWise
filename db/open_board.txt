@@ -1,1 +1,0 @@
-{"name": "<board_name456789asdasd>", "description": "<description>", "team_id": "38a8b204-dc41-458a-8c8b-4b2c1ff6c0c8", "id": "5fad88f9-c69a-4853-b8b0-83b7d5c77619", "creation_time": "2024-04-22 23:6:16"}
