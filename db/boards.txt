@@ -1,18 +1,1 @@
-[
-  {
-    "name": "<board_name>",
-    "description": "<description>",
-    "team_id": "38a8b204-dc41-458a-8c8b-4b2c1ff6c0c8",
-    "id": "bdbb82c7-e27b-44c9-9df2-b1eacca49be3",
-    "creation_time": "2024-04-22 16:9:57"
-  },
-  {
-    "name": "<board_name2>",
-    "description": "<description>",
-    "team_id": "38a8b204-dc41-458a-8c8b-4b2c1ff6c0c8",
-    "id": "d7ac7e2b-141a-4098-b36e-0fc7995c7233",
-    "creation_time": "2024-04-22 17:31:7",
-    "close_time": "2024-04-22 19:30:27",
-    "status": "CLOSED"
-  }
-]
+[{"name": "<board_name>", "description": "<description>", "team_id": "38a8b204-dc41-458a-8c8b-4b2c1ff6c0c8", "id": "bdbb82c7-e27b-44c9-9df2-b1eacca49be3", "creation_time": "2024-04-22 16:9:57"}, {"name": "<board_name2>", "description": "<description>", "team_id": "38a8b204-dc41-458a-8c8b-4b2c1ff6c0c8", "id": "d7ac7e2b-141a-4098-b36e-0fc7995c7233", "creation_time": "2024-04-22 17:31:7", "close_time": "2024-04-22 19:30:27", "status": "CLOSED"}, {"name": "<board_name567>", "description": "<description>", "team_id": "38a8b204-dc41-458a-8c8b-4b2c1ff6c0c8", "id": "f64f28e4-85e0-4745-831e-2a007726f16f", "creation_time": "2024-04-22 21:20:1", "close_time": "2024-04-22 21:26:19", "status": "CLOSED"}, {"name": "<board_name567>", "description": "<description>", "team_id": "38a8b204-dc41-458a-8c8b-4b2c1ff6c0c8", "id": "f64f28e4-85e0-4745-831e-2a007726f16f", "creation_time": "2024-04-22 21:20:1", "close_time": "2024-04-22 21:40:0", "status": "CLOSED"}, {"name": "<board_name567>", "description": "<description>", "team_id": "38a8b204-dc41-458a-8c8b-4b2c1ff6c0c8", "id": "f64f28e4-85e0-4745-831e-2a007726f16f", "creation_time": "2024-04-22 21:20:1", "close_time": "2024-04-22 21:40:23", "status": "CLOSED"}, {"name": "<board_name567>", "description": "<description>", "team_id": "38a8b204-dc41-458a-8c8b-4b2c1ff6c0c8", "id": "f64f28e4-85e0-4745-831e-2a007726f16f", "creation_time": "2024-04-22 21:20:1", "close_time": "2024-04-22 21:45:0", "status": "CLOSED"}, {"name": "<board_name567>", "description": "<description>", "team_id": "38a8b204-dc41-458a-8c8b-4b2c1ff6c0c8", "id": "f64f28e4-85e0-4745-831e-2a007726f16f", "creation_time": "2024-04-22 21:20:1", "close_time": "2024-04-22 21:46:15", "status": "CLOSED"}, {"name": "<board_name567>", "description": "<description>", "team_id": "38a8b204-dc41-458a-8c8b-4b2c1ff6c0c8", "id": "f64f28e4-85e0-4745-831e-2a007726f16f", "creation_time": "2024-04-22 21:20:1", "close_time": "2024-04-22 21:47:3", "status": "CLOSED"}, {"name": "<board_name567>", "description": "<description>", "team_id": "38a8b204-dc41-458a-8c8b-4b2c1ff6c0c8", "id": "f64f28e4-85e0-4745-831e-2a007726f16f", "creation_time": "2024-04-22 21:20:1", "close_time": "2024-04-22 21:47:12", "status": "CLOSED"}, {"name": "<board_name567>", "description": "<description>", "team_id": "38a8b204-dc41-458a-8c8b-4b2c1ff6c0c8", "id": "f64f28e4-85e0-4745-831e-2a007726f16f", "creation_time": "2024-04-22 21:20:1", "close_time": "2024-04-22 21:47:45", "status": "CLOSED"}, {"name": "<board_name456789>", "description": "<description>", "team_id": "38a8b204-dc41-458a-8c8b-4b2c1ff6c0c8", "id": "bf7734b0-c1d1-4391-aebf-c7eac0961647", "creation_time": "2024-04-22 21:48:25", "close_time": "2024-04-22 21:52:4", "status": "CLOSED"}, {"name": "<die trying>", "description": "<description>", "team_id": "38a8b204-dc41-458a-8c8b-4b2c1ff6c0c8", "id": "012a3244-cdae-42c4-b471-b40d3c2831af", "creation_time": "2024-04-22 21:54:14", "close_time": "2024-04-22 21:57:1", "status": "CLOSED"}]
