@@ -5,6 +5,7 @@ from uuid import uuid4
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
+from api import serializer
 from api.serializer import BoardSerializerCreateOrUpdate
 class BoardView(APIView):    
     db_path = os.path.join(os.getcwd(), "db")
@@ -13,11 +14,18 @@ class BoardView(APIView):
     users_path = os.path.join(db_path,"users")
     boards_path = os.path.join(db_path,"boards")
     open_board_path = os.path.join(db_path,"open_board")
+    open_tasks_path = os.path.join(db_path, "tasks", "OPEN")
+    closed_tasks_path = os.path.join(db_path, "tasks", "CLOSED")
+    
+    def get(self, request):
+      return self.list_boards(request)
+    
     def post(self, request):
       return self.create_board(request)
     
     def patch(self, request):
       return self.close_board(request)
+    
     
     def create_board(self, request: str):
       if os.path.isfile(self.open_board_path+".txt"):
@@ -52,8 +60,27 @@ class BoardView(APIView):
       return Response({"id": output['id']})
       
     def close_board(self, request: str) -> str:
-      pass
-    
+      open_tasks_count = len(os.listdir(self.open_tasks_path))
+      if open_tasks_count>0:
+        return Response({"error": "Tasks are still open, close them to delete the board!"}, status=400)
+      if os.path.isfile(self.open_board_path+".txt") != True:
+        return Response({"error": "There is no open board! Open a board first to perform this action."}, status=400)
+      
+      with open(self.open_board_path + ".txt", "r") as open_board:
+        current_close_board = json.load(open_board)
+        # print(self.boards_path)
+      current_close_board['close_time'] = str(date.today()) +" " +str(datetime.now().hour)+":"+str(datetime.now().minute)+":"+str(datetime.now().second)
+      current_close_board['status'] = "CLOSED"
+      with open(self.boards_path + ".txt") as closed_boards:
+        output = json.loads(closed_boards.read())
+      output.append(current_close_board)
+      with open(self.boards_path + ".txt", "w") as closed_boards:
+        closed_boards.write(json.dumps(output))
+        
+      os.remove(self.open_board_path + ".txt")
+        
+      return Response({}, status=201)  
+      
     def add_task(self, request: str) -> str:
       pass
 
@@ -61,7 +88,37 @@ class BoardView(APIView):
       pass
 
     def list_boards(self, request: str) -> str:
-      pass
+      team_id = request.data.get('id')
+      with open(self.teams_path+".txt", "r") as file:
+        teams = json.load(file)
+      team_found = False
+      for team in teams:
+        if team['id'] == str(team_id):
+          team_found = True
+          break
+      if team_found == False:
+        return Response({"error":"No team with the id exists! Please enter correct Team id to list all the boards."}, status=404)
+      output = []
+      if os.path.isfile(self.open_board_path+".txt"):
+        with open(self.open_board_path+".txt", "r") as file:
+          open_board = json.load(file)
+          temp = {
+            "id" : open_board["id"],
+            "name" : open_board["name"]
+          }
+          output.append()
+      with open(self.boards_path+".txt", "r") as file:
+        closed_boards = json.load(file)
+        for board in closed_boards:
+          temp = {
+            "id" : board["id"],
+            "name" : board["name"]
+          }
+          output.append(temp)
+      
+      return Response(output, status=200)
+      
+      
 
     def export_board(self, request: str) -> str:
       pass

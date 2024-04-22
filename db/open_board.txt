@@ -1,7 +1,0 @@
-{
-  "name": "sdasdsadasdas",
-  "description": "sadasd",
-  "team_id": "38a8b204-dc41-458a-8c8b-4b2c1ff6c0c8",
-  "id": "60faf8b1-7eaa-435d-92be-1830afc57128",
-  "creation_time": "2024-04-22 15:27:14"
-}

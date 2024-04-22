@@ -1,10 +1,9 @@
 [
   {
-    "name": "sdasd",
-    "description": "sadasd",
-    "team_id": "2a7dddda-4c88-49be-b39d-35c3f6685ad4",
-    "id": "50ce3b2d-305e-4552-b932-7d520f510485",
-    "creation_time": "2024-04-22 15:11:40",
-    "close_time": "2024-04-22 15:11:40"
+    "name": "<board_name>",
+    "description": "<description>",
+    "team_id": "38a8b204-dc41-458a-8c8b-4b2c1ff6c0c8",
+    "id": "bdbb82c7-e27b-44c9-9df2-b1eacca49be3",
+    "creation_time": "2024-04-22 16:9:57"
   }
 ]
