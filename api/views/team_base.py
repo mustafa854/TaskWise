@@ -2,6 +2,7 @@ from datetime import date, datetime
 import json
 import os
 import uuid
+from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from api.serializer import TeamSerializerView, TeamSerializerCreateOrUpdate
@@ -140,56 +141,66 @@ class TeamView(APIView):
       return Response({}, status=200)
         
 
-    # add users to team
-    def add_users_to_team(self, request: str):
-        """
-        :param request: A json string with the team details
-        {
-          "id" : "<team_id>",
-          "users" : ["user_id 1", "user_id2"]
-        }
+@api_view(['POST'])
+def add_users_to_team(request: str):
+  teamID = request.data.get("id")
+  usersArr = request.data.get("users")
+  teams_path = os.path.join(os.getcwd(), "db","teams")
+  team_members_dir = os.path.join(os.getcwd(), "db","team_members")
+  users_path = os.path.join(os.getcwd(), "db","users")
+  current_users_count = len(os.listdir(team_members_dir))
+  add_users_count = len(usersArr)
+  if add_users_count == 0:
+    return Response({"error":"Please add atleast 1 user Id to assign to the current team"}, status=400)
+  if current_users_count + add_users_count > 50:
+    return Response({"error":"Max 50 users can be added!"}, status=400)
+  with open(teams_path + ".txt") as team:
+        teamsList = json.loads(team.read())
+  teamFound = False   
+  for team in teamsList:
+    if teamID == team["id"]:
+      teamFound = True
+  if teamFound==False:
+    return Response({"error":"No team Found! Please select a correct Team Id"}, status=404)
+  
+  with open(users_path+".txt", "r") as f:
+    users_array = json.load(f)
+    for user in usersArr:
+      user_found = False
+      for existingUser in users_array:
+        if user == existingUser['id']:
+          user_found = True
+          break
+      if user_found == False:
+        return Response({"error":"Please select correct User Id to add them to a Team!"}, status=400)
+  
+  for newUser in usersArr:
+    open(os.path.join(team_members_dir, teamID ,newUser)+".txt" , "w")
+  
+  return Response({}, status= 200)
+@api_view(['POST'])
+def remove_users_from_team(request: str):
+        
+        return Response({"message": "POST request for /teams/delete-user"})
 
-        :return:
 
-        Constraint:
-        * Cap the max users that can be added to 50
-        """
-        pass
+# def list_team_users(self, request: str):
+#         """
+#         :param request: A json string with the team identifier
+#         {
+#           "id" : "<team_id>"
+#         }
 
-    # add users to team
-    def remove_users_from_team(self, request: str):
-        """
-        :param request: A json string with the team details
-        {
-          "id" : "<team_id>",
-          "users" : ["user_id 1", "user_id2"]
-        }
-
-        :return:
-
-        Constraint:
-        * Cap the max users that can be added to 50
-        """
-        pass
-
-    # list users of a team
-    def list_team_users(self, request: str):
-        """
-        :param request: A json string with the team identifier
-        {
-          "id" : "<team_id>"
-        }
-
-        :return:
-        [
-          {
-            "id" : "<user_id>",
-            "name" : "<user_name>",
-            "display_name" : "<display name>"
-          }
-        ]
-        """
-        pass
+#         :return:
+#         [
+#           {
+#             "id" : "<user_id>",
+#             "name" : "<user_name>",
+#             "display_name" : "<display name>"
+#           }
+#         ]
+#         """
+#         pass
 
   
 
