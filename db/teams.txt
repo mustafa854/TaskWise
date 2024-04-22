@@ -1,1 +1,16 @@
-[{"name": "<team_name>", "description": "<some description>", "admin": "2a7dddda-4c88-49be-b39d-35c3f6685ad4", "id": "d6044222-d59f-434e-93aa-50e02c1e29df", "creation_time": "2024-04-22 11:55:13"}, {"name": "<team_name2>", "description": "<some description2>", "admin": "98e966ca-569b-40c7-9fb6-4860fcb7015f", "id": "38a8b204-dc41-458a-8c8b-4b2c1ff6c0c8", "creation_time": "2024-04-22 11:55:58"}]
+[
+  {
+    "name": "<team_name>",
+    "description": "<some description>",
+    "admin": "2a7dddda-4c88-49be-b39d-35c3f6685ad4",
+    "id": "d6044222-d59f-434e-93aa-50e02c1e29df",
+    "creation_time": "2024-04-22 11:55:13"
+  },
+  {
+    "name": "<team_name2>",
+    "description": "<some description2>",
+    "admin": "98e966ca-569b-40c7-9fb6-4860fcb7015f",
+    "id": "38a8b204-dc41-458a-8c8b-4b2c1ff6c0c8",
+    "creation_time": "2024-04-22 11:55:58"
+  }
+]

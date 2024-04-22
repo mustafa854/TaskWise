@@ -1,3 +1,72 @@
+from datetime import date, datetime
+import json
+import os
+from uuid import uuid4
+from rest_framework.views import APIView
+from rest_framework.response import Response
+
+from api.serializer import BoardSerializerCreateOrUpdate
+class BoardView(APIView):    
+    db_path = os.path.join(os.getcwd(), "db")
+    teams_path = os.path.join(db_path,"teams")
+    team_member_dir = os.path.join(db_path,"team_members")
+    users_path = os.path.join(db_path,"users")
+    boards_path = os.path.join(db_path,"boards")
+    open_board_path = os.path.join(db_path,"open_board")
+    def post(self, request):
+      return self.create_board(request)
+    
+    def patch(self, request):
+      return self.close_board(request)
+    
+    def create_board(self, request: str):
+      if os.path.isfile(self.open_board_path+".txt"):
+        return Response({"error": "There is an already opened board! Close it to create a new one."}, status=400)
+      serializer = BoardSerializerCreateOrUpdate(data=request.data)
+      if serializer.is_valid(raise_exception=True):
+        output = serializer.validated_data
+        with open(self.teams_path+".txt", "r") as available_teams:
+          json_available_team = json.load(available_teams)
+          print(json_available_team)
+          team_found = False
+          for available_team in json_available_team:
+            if available_team['id'] == str(output['team_id']):
+              team_found = True
+              break
+          if team_found == False:
+            return Response({"error":"Please select correct team to assign the board!"}, status=400)
+              
+        with open(self.boards_path + ".txt", "r") as closed_boards:
+          json_closed_board = json.load(closed_boards)
+          print(json_closed_board)
+          for closed_board in json_closed_board:
+            if closed_board['name'] == output['name']:
+              return Response({"error":"Please enter a unique Name. The team with the given name exists."}, status=400)
+          
+        open_board = open(self.open_board_path+".txt", "w")
+        creation_time = str(date.today()) +" " +str(datetime.now().hour)+":"+str(datetime.now().minute)+":"+str(datetime.now().second)
+        output['team_id'] = str(output['team_id'])
+        output['id'] = str(uuid4())
+        output['creation_time'] = creation_time
+        open_board.write(json.dumps(output))
+      return Response({"id": output['id']})
+      
+    def close_board(self, request: str) -> str:
+      pass
+    
+    def add_task(self, request: str) -> str:
+      pass
+
+    def update_task_status(self, request: str):
+      pass
+
+    def list_boards(self, request: str) -> str:
+      pass
+
+    def export_board(self, request: str) -> str:
+      pass
+
+
 class ProjectBoardBase:
     """
     A project board is a unit of delivery for a project. Each board will have a set of tasks assigned to a user.
