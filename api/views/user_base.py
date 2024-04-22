@@ -5,7 +5,7 @@ import uuid
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from api.serializer import UserSerializer
-
+from rest_framework.decorators import api_view 
 class UserView(APIView):
   users_path = os.path.join(os.getcwd(), "db","users")
   
@@ -90,101 +90,74 @@ class UserView(APIView):
       f.write(json.dumps(users_array))
     return Response({}, status=200)
     
+@api_view(['GET'])
+def get_user_teams(request: str) -> str:
+  users_path = os.path.join(os.getcwd(), "db","users")
+  team_member_dir = os.path.join(os.getcwd(), "db","team_members")
+  
+  output = []
+  user_id = str(request.data.get('id'))
+  with open(users_path+".txt", "r") as file:
+    users_array = json.load(file)
+  user_found = False
+  for user in users_array:
+    if user_id == user['id']:
+      user_found = True
+      break
+  if user_found == False:
+    return Response({"error":"Please enter correct user Id to list teams!"}, status=404)
+  user_id = str(request.data.get('id'))+".txt"
+  temp = []
+  teams = os.listdir(team_member_dir)
+  for team in teams:
+    teamMembers = os.listdir(os.path.join(team_member_dir, team))
+    if len(teamMembers)>0:
+      print(user_id in teamMembers, type(user_id), user_id, teamMembers)
+      if user_id in teamMembers:
+        temp.append(team)
+  
 
-  # def get_user_teams(self, request: str) -> str:
-  #   pass
+  with open(os.path.join(os.getcwd(), "db","teams")+".txt", "r") as file:
+    teams_detail = json.load(file)
+  for t in temp:
+    for team_detail in teams_detail:
+      if team_detail['id'] == t:
+        output.append({
+            "name" : team_detail['name'],
+            "description" : team_detail['description'],
+            "creation_time" : team_detail['creation_time']
+          })
+  
+  
+  return Response(output, status=200)
 
-class UserBase:
-    """
-    Base interface implementation for API's to manage users.
-    """
 
-    # create a user
-    def create_user(self, request: str) -> str:
-        """
-        :param request: A json string with the user details
-        {
-          "name" : "<user_name>",
-          "display_name" : "<display name>"
-        }
-        :return: A json string with the response {"id" : "<user_id>"}
 
-        Constraint:
-            * user name must be unique
-            * name can be max 64 characters
-            * display name can be max 64 characters
-        """
-        pass
+    
 
-    # list all users
-    def list_users(self) -> str:
-        """
-        :return: A json list with the response
-        [
-          {
-            "name" : "<user_name>",
-            "display_name" : "<display name>",
-            "creation_time" : "<some date:time format>"
-          }
-        ]
-        """
-        pass
+    
+    
 
-    # describe user
-    def describe_user(self, request: str) -> str:
-        """
-        :param request: A json string with the user details
-        {
-          "id" : "<user_id>"
-        }
+    
+    
 
-        :return: A json string with the response
+    
 
-        {
-          "name" : "<user_name>",
-          "description" : "<some description>",
-          "creation_time" : "<some date:time format>"
-        }
+    # def get_user_teams(self, request: str) -> str:
+    #     """
+    #     :param request:
+    #     {
+    #       "id" : "<user_id>"
+    #     }
 
-        """
-        pass
-
-    # update user
-    def update_user(self, request: str) -> str:
-        """
-        :param request: A json string with the user details
-        {
-          "id" : "<user_id>",
-          "user" : {
-            "name" : "<user_name>",
-            "display_name" : "<display name>"
-          }
-        }
-
-        :return:
-
-        Constraint:
-            * user name cannot be updated
-            * name can be max 64 characters
-            * display name can be max 128 characters
-        """
-        pass
-
-    def get_user_teams(self, request: str) -> str:
-        """
-        :param request:
-        {
-          "id" : "<user_id>"
-        }
-
-        :return: A json list with the response.
-        [
-          {
-            "name" : "<team_name>",
-            "description" : "<some description>",
-            "creation_time" : "<some date:time format>"
-          }
-        ]
-        """
-        pass
+    #     :return: A json list with the response.
+    #     [
+    #       {
+    #         "name" : "<team_name>",
+    #         "description" : "<some description>",
+    #         "creation_time" : "<some date:time format>"
+    #       }
+    #     ]
+    #     """
+    #     pass
 
