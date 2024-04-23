@@ -1,4 +1,6 @@
-### Please check [ProblemStatement.md](./tasks/ProblemStatement.md) to check the tasks assigned for the project! [or CLICK HERE](./tasks/ProblemStatement.md)
+### Please check [ProblemStatement.md](./doc/tasks/ProblemStatement.md) to check the tasks assigned for the project! [or CLICK HERE](./doc/tasks/ProblemStatement.md)
+
+### Please check [Endpoints Folder](./doc/endpoints) to check all the endpoints for the project! [or CLICK HERE](./doc/endpoints)
 
 # TaskWise- Project Planner Tool: [DRF REST API]
 
